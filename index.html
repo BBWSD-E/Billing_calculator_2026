@@ -473,6 +473,7 @@ let waterBasic =
 
 
 
+
 /* WATER CONSUMPTION */
 
 let waterUse = 0;
@@ -484,25 +485,32 @@ let highWaterRate =
 location=="inside" ? 8.50 : 10.62;
 
 
-if(usage >= 500){
+/*
+First 400 CF are free.
+401-2000 CF are charged at the low rate.
+Above 2000 CF is charged at the high rate.
+*/
 
-if(usage <= 2000){
+if(usage > 400){
 
-waterUse =
-(usage/100) * lowWaterRate;
+    if(usage <= 2000){
+
+        waterUse =
+        ((usage - 400) / 100) * lowWaterRate;
+
+    }
+    else{
+
+        waterUse =
+        ((2000 - 400) / 100) * lowWaterRate;
+
+        waterUse +=
+        ((usage - 2000) / 100) * highWaterRate;
+
+    }
 
 }
-else{
 
-waterUse =
-(2000/100) * lowWaterRate;
-
-waterUse +=
-((usage-2000)/100) * highWaterRate;
-
-}
-
-}
 
 
 
@@ -519,22 +527,27 @@ location=="inside" ? 28.50 : 35.62;
 if(service!="waterOnly"){
 
 
-sewerBasic =
-sewerELU * units * months;
+    sewerBasic =
+    sewerELU * units * months;
 
 
-if(usage >=500 && usage <=2000){
+    if (usage > 400) {
 
-let sewerRate =
-location=="inside" ? 3.80 : 4.75;
+        let sewerRate =
+        location=="inside" ? 3.80 : 4.75;
 
 
-sewerUse =
-(usage/100) * sewerRate;
+        let sewerBillable =
+        Math.min(usage, 2000) - 400;
+
+
+        sewerUse =
+        (sewerBillable / 100) * sewerRate;
+
+    }
 
 }
 
-}
 
 
 
