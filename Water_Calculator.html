@@ -1,0 +1,641 @@
+<!doctype html>
+<html>
+<head>
+
+<title>Service Calculator</title>
+
+<style>
+
+body{
+font-family:Arial,Helvetica,sans-serif;
+background:#eaf5ff;
+margin:0;
+padding:20px;
+color:#1a365d;
+}
+
+.page-container{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+max-width:1200px;
+margin:auto;
+}
+
+.panel{
+background:white;
+border-radius:18px;
+padding:20px;
+box-shadow:0 4px 15px rgba(0,0,0,.15);
+}
+
+.calculator-panel{
+grid-row:1 / span 2;
+}
+
+h1,h2{
+color:#005b96;
+}
+
+h1{
+text-align:center;
+}
+
+.subtitle{
+text-align:center;
+color:#555;
+}
+
+input[type="radio"]{
+display:none;
+}
+
+.choice-button{
+display:block;
+background:#0077cc;
+color:white;
+padding:15px;
+margin:10px 0;
+border-radius:10px;
+text-align:center;
+font-size:18px;
+font-weight:bold;
+cursor:pointer;
+}
+
+input[type="radio"]:checked + .choice-button{
+background:#003f6b;
+border:3px solid #66c2ff;
+}
+
+label{
+display:block;
+font-weight:bold;
+margin-top:15px;
+}
+
+input[type="text"]{
+width:100%;
+padding:10px;
+font-size:18px;
+border-radius:8px;
+border:1px solid #aaa;
+box-sizing:border-box;
+}
+
+button,input[type="reset"]{
+width:100%;
+margin-top:15px;
+padding:15px;
+font-size:20px;
+font-weight:bold;
+color:white;
+background:#009933;
+border:0;
+border-radius:10px;
+cursor:pointer;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+font-size:14px;
+}
+
+th{
+background:#005b96;
+color:white;
+padding:8px;
+}
+
+td{
+padding:8px;
+border-bottom:1px solid #ddd;
+}
+
+.total-line{
+background:#e0f2ff;
+font-size:20px;
+font-weight:bold;
+}
+
+.rate-box{
+border:1px solid #ddd;
+border-radius:10px;
+padding:10px;
+margin-bottom:15px;
+}
+
+.rate-box table{
+font-size:12px;
+}
+
+.rate-box h3{
+margin:5px 0;
+}
+
+.rate-box h4{
+margin:8px 0;
+}
+
+
+@media(max-width:900px){
+
+.page-container{
+grid-template-columns:1fr;
+}
+
+.calculator-panel{
+grid-row:auto;
+}
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="page-container">
+
+
+<div class="panel calculator-panel">
+
+<h1>Service Calculator</h1>
+
+<div class="subtitle">
+Rates Effective Jan. 1, 2026<br>
+Per Resolution 789
+</div>
+
+
+<h2>Service Type</h2>
+
+
+<input type="radio" id="ws" name="service" value="waterSewer" checked>
+<label class="choice-button" for="ws">
+Water and Sewer
+</label>
+
+
+<input type="radio" id="wo" name="service" value="waterOnly">
+<label class="choice-button" for="wo">
+Water Only
+</label>
+
+
+<input type="radio" id="com" name="service" value="commercial">
+<label class="choice-button" for="com">
+Commercial Water and Sewer
+</label>
+
+
+
+<h2>Location</h2>
+
+
+<input type="radio" id="in" name="location" value="inside" checked>
+<label class="choice-button" for="in">
+Inside Service Area
+</label>
+
+
+<input type="radio" id="out" name="location" value="outside">
+<label class="choice-button" for="out">
+Outside Service Area
+</label>
+
+
+
+<label>Number of Units (ELU)</label>
+<input type="text" id="units" value="1">
+
+
+<label>Days of Service</label>
+<input type="text" id="days" value="60">
+
+
+<label>Water Usage (CF)</label>
+<input type="text" id="usage" value="1">
+
+
+<button onclick="calculateBill()">
+Calculate Bill
+</button>
+
+
+<input type="reset" onclick="resetBill()" value="Reset">
+
+
+</div>
+<div class="panel bill-panel">
+
+<h2>Bill Summary</h2>
+
+<table>
+
+<tr>
+<th>Charge</th>
+<th>Rate Basis</th>
+<th>Amount</th>
+</tr>
+
+<tr>
+<td>Water Base</td>
+<td id="waterRateInfo"></td>
+<td id="waterBasic">$0.00</td>
+</tr>
+
+<tr>
+<td>Water Consumption</td>
+<td id="waterUseInfo"></td>
+<td id="waterUse">$0.00</td>
+</tr>
+
+<tr>
+<td>Sewer Base</td>
+<td id="sewerRateInfo"></td>
+<td id="sewerBasic">$0.00</td>
+</tr>
+
+<tr>
+<td>Sewer Consumption</td>
+<td id="sewerUseInfo"></td>
+<td id="sewerUse">$0.00</td>
+</tr>
+
+<tr class="total-line">
+<td>Total Due</td>
+<td></td>
+<td id="grandTotal">$0.00</td>
+</tr>
+
+</table>
+
+</div>
+
+
+
+
+<div class="panel rates-panel">
+
+<h2>2026 Water & Sewer Rate Summary</h2>
+
+
+<div class="rate-box">
+
+<h3>Water Charges</h3>
+
+
+<h4>Billing & Handling Charge (per month)</h4>
+
+<table>
+
+<tr>
+<th></th>
+<th>Inside Service Area</th>
+<th>Outside Service Area</th>
+</tr>
+
+<tr>
+<td>Billing & Handling</td>
+<td>$5.75</td>
+<td>$7.18</td>
+</tr>
+
+</table>
+
+
+
+<h4>Base Charges (per ELU per month)</h4>
+
+<table>
+
+<tr>
+<th>Customer Type</th>
+<th>Inside Service Area</th>
+<th>Outside Service Area</th>
+</tr>
+
+<tr>
+<td>Residential</td>
+<td>$16.45</td>
+<td>$20.56</td>
+</tr>
+
+<tr>
+<td>Commercial</td>
+<td>$16.45</td>
+<td>$20.56</td>
+</tr>
+
+</table>
+
+
+
+<h4>Consumption Rates (Rate per CF)</h4>
+
+<table>
+
+<tr>
+<th>Service Area</th>
+<th>5-20 CCF</th>
+<th>21+ CCF</th>
+</tr>
+
+<tr>
+<td>Inside Service Area</td>
+<td>$4.45 per 100 CF</td>
+<td>$8.50 per 100 CF</td>
+</tr>
+
+<tr>
+<td>Outside Service Area</td>
+<td>$5.56 per 100 CF</td>
+<td>$10.62 per 100 CF</td>
+</tr>
+
+</table>
+
+
+</div>
+
+
+
+
+<div class="rate-box">
+
+<h3>Sewer Charges</h3>
+
+
+<h4>Base Charges (per ELU per month)</h4>
+
+<table>
+
+<tr>
+<th>Customer Type</th>
+<th>Inside Service Area</th>
+<th>Outside Service Area</th>
+</tr>
+
+<tr>
+<td>Residential</td>
+<td>$28.50</td>
+<td>$35.62</td>
+</tr>
+
+<tr>
+<td>Commercial</td>
+<td>$28.50</td>
+<td>$35.62</td>
+</tr>
+
+</table>
+
+
+
+<h4>Consumption Rates (Rate per CF)</h4>
+
+<table>
+
+<tr>
+<th>Service Area</th>
+<th>Rate per CF</th>
+</tr>
+
+<tr>
+<td>Inside Service Area</td>
+<td>$3.80 per 100 CF</td>
+</tr>
+
+<tr>
+<td>Outside Service Area</td>
+<td>$4.75 per 100 CF</td>
+</tr>
+
+</table>
+
+
+</div>
+
+
+<p style="font-size:12px;color:#555;">
+Usage entered in CF. Consumption billed per 100 CF.
+Sewer consumption is based on water usage and is not charged above 2,000 CF.
+</p>
+
+
+</div>
+<script>
+
+function money(v){
+return "$" + v.toFixed(2);
+}
+
+
+function calculateBill(){
+
+let service =
+document.querySelector('input[name="service"]:checked').value;
+
+let location =
+document.querySelector('input[name="location"]:checked').value;
+
+
+let units =
+Number(document.getElementById("units").value);
+
+let days =
+Number(document.getElementById("days").value);
+
+let usage =
+Number(document.getElementById("usage").value);
+
+
+let months = days / 30;
+
+
+
+/* WATER BASE */
+
+let handling =
+location=="inside" ? 5.75 : 7.18;
+
+let waterELU =
+location=="inside" ? 16.45 : 20.56;
+
+
+let waterBasic =
+(handling + waterELU) * units * months;
+
+
+
+/* WATER CONSUMPTION */
+
+let waterUse = 0;
+
+let lowWaterRate =
+location=="inside" ? 4.45 : 5.56;
+
+let highWaterRate =
+location=="inside" ? 8.50 : 10.62;
+
+
+if(usage >= 500){
+
+if(usage <= 2000){
+
+waterUse =
+(usage/100) * lowWaterRate;
+
+}
+else{
+
+waterUse =
+(2000/100) * lowWaterRate;
+
+waterUse +=
+((usage-2000)/100) * highWaterRate;
+
+}
+
+}
+
+
+
+/* SEWER */
+
+let sewerBasic = 0;
+let sewerUse = 0;
+
+
+let sewerELU =
+location=="inside" ? 28.50 : 35.62;
+
+
+if(service!="waterOnly"){
+
+
+sewerBasic =
+sewerELU * units * months;
+
+
+if(usage >=500 && usage <=2000){
+
+let sewerRate =
+location=="inside" ? 3.80 : 4.75;
+
+
+sewerUse =
+(usage/100) * sewerRate;
+
+}
+
+}
+
+
+
+/* TOTAL */
+
+let total =
+waterBasic +
+waterUse +
+sewerBasic +
+sewerUse;
+
+
+
+/* DISPLAY */
+
+document.getElementById("waterBasic").innerHTML =
+money(waterBasic);
+
+document.getElementById("waterUse").innerHTML =
+money(waterUse);
+
+document.getElementById("sewerBasic").innerHTML =
+money(sewerBasic);
+
+document.getElementById("sewerUse").innerHTML =
+money(sewerUse);
+
+document.getElementById("grandTotal").innerHTML =
+money(total);
+
+
+
+document.getElementById("waterRateInfo").innerHTML =
+"$"+handling.toFixed(2)+
+" handling + $"+
+waterELU.toFixed(2)+
+" ELU/month";
+
+
+document.getElementById("waterUseInfo").innerHTML =
+usage+" CF";
+
+
+if(service!="waterOnly"){
+
+document.getElementById("sewerRateInfo").innerHTML =
+"$"+sewerELU.toFixed(2)+
+" ELU/month";
+
+
+if(usage>2000){
+
+document.getElementById("sewerUseInfo").innerHTML =
+"No sewer consumption charge";
+
+}
+else{
+
+document.getElementById("sewerUseInfo").innerHTML =
+usage+" CF";
+
+}
+
+
+}
+
+else{
+
+document.getElementById("sewerRateInfo").innerHTML =
+"No sewer service";
+
+document.getElementById("sewerUseInfo").innerHTML =
+"No sewer service";
+
+}
+
+
+}
+
+
+
+
+function resetBill(){
+
+document.getElementById("waterBasic").innerHTML="$0.00";
+document.getElementById("waterUse").innerHTML="$0.00";
+document.getElementById("sewerBasic").innerHTML="$0.00";
+document.getElementById("sewerUse").innerHTML="$0.00";
+document.getElementById("grandTotal").innerHTML="$0.00";
+
+document.getElementById("waterRateInfo").innerHTML="";
+document.getElementById("waterUseInfo").innerHTML="";
+document.getElementById("sewerRateInfo").innerHTML="";
+document.getElementById("sewerUseInfo").innerHTML="";
+
+}
+
+</script>
+
+
+</div>
+
+</body>
+</html>
