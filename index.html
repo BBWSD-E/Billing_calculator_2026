@@ -1,7 +1,3 @@
-<!doctype html>
-<html>
-<head>
-
 <title>Service Calculator</title>
 
 <style>
@@ -153,10 +149,10 @@ grid-row:auto;
 
 </style>
 
-</head>
 
 
-<body>
+
+
 
 
 <div class="page-container">
@@ -175,7 +171,7 @@ Per Resolution 789
 <h2>Service Type</h2>
 
 
-<input type="radio" id="ws" name="service" value="waterSewer" checked>
+<input type="radio" id="ws" name="service" value="waterSewer" checked="">
 <label class="choice-button" for="ws">
 Water and Sewer
 </label>
@@ -197,7 +193,7 @@ Commercial Water and Sewer
 <h2>Location</h2>
 
 
-<input type="radio" id="in" name="location" value="inside" checked>
+<input type="radio" id="in" name="location" value="inside" checked="">
 <label class="choice-button" for="in">
 Inside Service Area
 </label>
@@ -237,7 +233,7 @@ Calculate Bill
 
 <table>
 
-<tr>
+<tbody><tr>
 <th>Charge</th>
 <th>Rate Basis</th>
 <th>Amount</th>
@@ -273,7 +269,7 @@ Calculate Bill
 <td id="grandTotal">$0.00</td>
 </tr>
 
-</table>
+</tbody></table>
 
 </div>
 
@@ -282,7 +278,7 @@ Calculate Bill
 
 <div class="panel rates-panel">
 
-<h2>2026 Water & Sewer Rate Summary</h2>
+<h2>2026 Water &amp; Sewer Rate Summary</h2>
 
 
 <div class="rate-box">
@@ -290,23 +286,23 @@ Calculate Bill
 <h3>Water Charges</h3>
 
 
-<h4>Billing & Handling Charge (per month)</h4>
+<h4>Billing &amp; Handling Charge (per month)</h4>
 
 <table>
 
-<tr>
+<tbody><tr>
 <th></th>
 <th>Inside Service Area</th>
 <th>Outside Service Area</th>
 </tr>
 
 <tr>
-<td>Billing & Handling</td>
+<td>Billing &amp; Handling</td>
 <td>$5.75</td>
 <td>$7.18</td>
 </tr>
 
-</table>
+</tbody></table>
 
 
 
@@ -314,7 +310,7 @@ Calculate Bill
 
 <table>
 
-<tr>
+<tbody><tr>
 <th>Customer Type</th>
 <th>Inside Service Area</th>
 <th>Outside Service Area</th>
@@ -332,7 +328,7 @@ Calculate Bill
 <td>$20.56</td>
 </tr>
 
-</table>
+</tbody></table>
 
 
 
@@ -340,7 +336,7 @@ Calculate Bill
 
 <table>
 
-<tr>
+<tbody><tr>
 <th>Service Area</th>
 <th>5-20 CCF</th>
 <th>21+ CCF</th>
@@ -358,7 +354,7 @@ Calculate Bill
 <td>$10.62 per 100 CF</td>
 </tr>
 
-</table>
+</tbody></table>
 
 
 </div>
@@ -375,7 +371,7 @@ Calculate Bill
 
 <table>
 
-<tr>
+<tbody><tr>
 <th>Customer Type</th>
 <th>Inside Service Area</th>
 <th>Outside Service Area</th>
@@ -393,7 +389,7 @@ Calculate Bill
 <td>$35.62</td>
 </tr>
 
-</table>
+</tbody></table>
 
 
 
@@ -401,7 +397,7 @@ Calculate Bill
 
 <table>
 
-<tr>
+<tbody><tr>
 <th>Service Area</th>
 <th>Rate per CF</th>
 </tr>
@@ -416,7 +412,7 @@ Calculate Bill
 <td>$4.75 per 100 CF</td>
 </tr>
 
-</table>
+</tbody></table>
 
 
 </div>
@@ -538,7 +534,8 @@ if(service!="waterOnly"){
 
 
         let sewerBillable =
-        Math.min(usage, 2000) - 400;
+Math.min(usage, 2000 * units) - 400;
+
 
 
         sewerUse =
@@ -598,12 +595,13 @@ document.getElementById("sewerRateInfo").innerHTML =
 " ELU/month";
 
 
-if(usage>2000){
+if(usage>(2000 * units)){
 
 document.getElementById("sewerUseInfo").innerHTML =
 "No sewer consumption charge";
 
 }
+
 else{
 
 document.getElementById("sewerUseInfo").innerHTML =
@@ -649,6 +647,3 @@ document.getElementById("sewerUseInfo").innerHTML="";
 
 
 </div>
-
-</body>
-</html>
