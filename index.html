@@ -420,7 +420,7 @@ Calculate Bill
 
 <p style="font-size:12px;color:#555;">
 Usage entered in CF. Consumption billed per 100 CF.
-Sewer consumption is based on water usage and is not charged above 2,000 CF.
+Sewer consumption is based on water usage and is not charged above 2,000 CF per ELU.
 </p>
 
 
@@ -454,7 +454,6 @@ Number(document.getElementById("usage").value);
 let months = days / 30;
 
 
-
 /* WATER BASE */
 
 let handling =
@@ -464,10 +463,13 @@ let waterELU =
 location=="inside" ? 16.45 : 20.56;
 
 
+/*
+Handling charge is per month.
+ELU base charge is per ELU per month.
+*/
+
 let waterBasic =
 (handling + (waterELU * units)) * months;
-
-
 
 
 /* WATER CONSUMPTION */
@@ -482,32 +484,60 @@ location=="inside" ? 8.50 : 10.62;
 
 
 /*
-First 400 CF are free.
-401-2000 CF are charged at the low rate.
-Above 2000 CF is charged at the high rate.
+Each ELU receives 400 CF free.
 */
 
-if(usage > 400){
-
-    if(usage <= 2000){
-
-        waterUse =
-        ((usage - 400) / 100) * lowWaterRate;
-
-    }
-    else{
-
-        waterUse =
-        ((2000 - 400) / 100) * lowWaterRate;
-
-        waterUse +=
-        ((usage - 2000) / 100) * highWaterRate;
-
-    }
-
-}
+let freeWaterCF =
+400 * units;
 
 
+/*
+Remove the free allowance.
+*/
+
+let billableWaterCF =
+Math.max(0, usage - freeWaterCF);
+
+
+/*
+Consumption is billed in 100-CF increments.
+*/
+
+let billableWaterUnits =
+Math.floor(billableWaterCF / 100);
+
+
+
+/*
+First 16 hundred-CF units per ELU
+are charged at the low rate.
+
+16 x 100 CF = 1,600 CF
+per ELU.
+*/
+
+let lowWaterUnits =
+Math.min(
+billableWaterUnits,
+16 * units
+);
+
+
+/*
+Anything above 1,600 CF per ELU
+is charged at the high rate.
+*/
+
+let highWaterUnits =
+Math.max(
+0,
+billableWaterUnits - (16 * units)
+);
+
+
+waterUse =
+(lowWaterUnits * lowWaterRate) +
+(highWaterUnits * highWaterRate);
 
 
 /* SEWER */
@@ -515,37 +545,71 @@ if(usage > 400){
 let sewerBasic = 0;
 let sewerUse = 0;
 
-
 let sewerELU =
 location=="inside" ? 28.50 : 35.62;
 
 
 if(service!="waterOnly"){
 
+    /*
+    Sewer base charge is per ELU per month.
+    */
 
     sewerBasic =
     sewerELU * units * months;
 
 
-    if (usage > 400) {
-
-        let sewerRate =
-        location=="inside" ? 3.80 : 4.75;
+    let sewerRate =
+    location=="inside" ? 3.80 : 4.75;
 
 
-        let sewerBillable =
-Math.min(usage, 2000 * units) - 400;
+    /*
+    Each ELU receives 400 CF free.
+    */
+
+    let freeSewerCF =
+    400 * units;
 
 
+    /*
+    Sewer consumption is capped at
+    2,000 CF per ELU.
+    */
 
-        sewerUse =
-        (sewerBillable / 100) * sewerRate;
+    let sewerMaximumCF =
+    2000 * units;
 
-    }
+
+    /*
+    Only usage between the free allowance
+    and the maximum is billable.
+    */
+
+    let sewerBillableCF =
+Math.min(usage, sewerMaximumCF) -
+freeSewerCF;
+
+
+/*
+Prevent negative values.
+*/
+
+sewerBillableCF =
+Math.max(0, sewerBillableCF);
+
+
+/*
+Bill in 100-CF increments.
+*/
+
+let sewerBillableUnits =
+Math.floor(sewerBillableCF / 100);
+
+
+sewerUse =
+sewerBillableUnits * sewerRate;
 
 }
-
-
 
 
 /* TOTAL */
@@ -555,7 +619,6 @@ waterBasic +
 waterUse +
 sewerBasic +
 sewerUse;
-
 
 
 /* DISPLAY */
@@ -576,6 +639,7 @@ document.getElementById("grandTotal").innerHTML =
 money(total);
 
 
+/* WATER RATE INFORMATION */
 
 document.getElementById("waterRateInfo").innerHTML =
 "$"+handling.toFixed(2)+
@@ -588,62 +652,70 @@ document.getElementById("waterUseInfo").innerHTML =
 usage+" CF";
 
 
+/* SEWER RATE INFORMATION */
+
 if(service!="waterOnly"){
 
-document.getElementById("sewerRateInfo").innerHTML =
-"$"+sewerELU.toFixed(2)+
-" ELU/month";
+    document.getElementById("sewerRateInfo").innerHTML =
+    "$"+sewerELU.toFixed(2)+
+    " ELU/month";
 
 
-if(usage>(2000 * units)){
+    if(usage > (2000 * units)){
 
-document.getElementById("sewerUseInfo").innerHTML =
-"No sewer consumption charge";
+        document.getElementById("sewerUseInfo").innerHTML =
+        usage+" CF (maximum sewer charge reached)";
+
+    }
+
+    else{
+
+        document.getElementById("sewerUseInfo").innerHTML =
+        usage+" CF";
+
+    }
 
 }
 
 else{
 
-document.getElementById("sewerUseInfo").innerHTML =
-usage+" CF";
+    document.getElementById("sewerRateInfo").innerHTML =
+    "No sewer service";
+
+    document.getElementById("sewerUseInfo").innerHTML =
+    "No sewer service";
+
+}
 
 }
 
 
-}
-
-else{
-
-document.getElementById("sewerRateInfo").innerHTML =
-"No sewer service";
-
-document.getElementById("sewerUseInfo").innerHTML =
-"No sewer service";
-
-}
-
-
-}
-
-
-
+/* RESET */
 
 function resetBill(){
 
 document.getElementById("waterBasic").innerHTML="$0.00";
+
 document.getElementById("waterUse").innerHTML="$0.00";
+
 document.getElementById("sewerBasic").innerHTML="$0.00";
+
 document.getElementById("sewerUse").innerHTML="$0.00";
+
 document.getElementById("grandTotal").innerHTML="$0.00";
 
 document.getElementById("waterRateInfo").innerHTML="";
+
 document.getElementById("waterUseInfo").innerHTML="";
+
 document.getElementById("sewerRateInfo").innerHTML="";
+
 document.getElementById("sewerUseInfo").innerHTML="";
 
 }
 
 </script>
+
 
 
 </div>
